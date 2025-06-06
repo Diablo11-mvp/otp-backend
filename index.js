@@ -16,17 +16,29 @@ const transporter = nodemailer.createTransport({
 });
 
 app.post("/send-code", async (req, res) => {
-  const { email, username, kodeVerifikasi } = req.body;
+  const { email, username, kodeVerifikasi, type } = req.body;
+
+  let subject = "Kode Verifikasi Akun";
+  let message = `
+    <p>Hai <strong>${username}</strong>,</p>
+    <p>Kode verifikasi Anda adalah: <strong>${kodeVerifikasi}</strong></p>
+    <p>Gunakan kode ini untuk melanjutkan proses pendaftaran.</p>
+  `;
+
+  if (type === "reset") {
+    subject = "Reset Password Akun Anda";
+    message = `
+      <p>Hai <strong>${username}</strong>,</p>
+      <p>Kode verifikasi untuk reset password Anda adalah: <strong>${kodeVerifikasi}</strong></p>
+      <p>Gunakan kode ini untuk mengatur ulang password akun Anda.</p>
+    `;
+  }
 
   const mailOptions = {
     from: `"${process.env.SENDER_NAME}" <${process.env.GMAIL_USER}>`,
     to: email,
-    subject: "Kode Verifikasi Akun",
-    html: `
-      <p>Hai <strong>${username}</strong>,</p>
-      <p>Kode verifikasi Anda adalah: <strong>${kodeVerifikasi}</strong></p>
-      <p>Gunakan kode ini untuk melanjutkan proses pendaftaran.</p>
-    `,
+    subject,
+    html: message,
   };
 
   try {
